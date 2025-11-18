@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import "log"
 
 func main() {
-	fmt.Println("Hello,")
+	worms, err := loadBookWorms("testdata/books.json")
+	log.Println(worms)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }

@@ -1,6 +1,9 @@
 package main
 
-import "os"
+import (
+	"encoding/json"
+	"os"
+)
 
 type Book struct {
 	Author string `json:"author"`
@@ -15,6 +18,7 @@ type BookWorm struct {
 func loadBookWorms(filePath string) ([]BookWorm, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
+		PrintError(err)
 		return nil, err
 	}
 
@@ -25,9 +29,22 @@ func loadBookWorms(filePath string) ([]BookWorm, error) {
 	defer func(f *os.File) {
 		err := f.Close()
 		if err != nil {
-
+			PrintError(err)
 		}
 	}(f)
 
-	return nil, nil
+	/*
+		Here we define a slice of BookWorm structs.
+	*/
+	var bookWorms []BookWorm
+	/*
+		Here we create a decoder and decode the JSON data into the slice of BookWorm structs.
+	*/
+	err = json.NewDecoder(f).Decode(&bookWorms)
+	if err != nil {
+		PrintError(err)
+		return nil, err
+	}
+
+	return bookWorms, nil
 }
