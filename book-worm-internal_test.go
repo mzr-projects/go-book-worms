@@ -24,7 +24,7 @@ var (
 		Author: "Charlotte Brontë",
 	}
 	bellJar = Book{
-		Title:  "Bell Jar",
+		Title:  "The Bell Jar",
 		Author: "Sylvia Plath",
 	}
 )
@@ -40,6 +40,7 @@ func TestLoadBookworms(t *testing.T) {
 				{Name: "Fadi", Books: []Book{handMaidsTale, bellJar}},
 				{Name: "Peggy", Books: []Book{oryxAndCrake, handMaidsTale, janeAery}},
 			},
+			wantErr: false,
 		},
 		"file doesn't exist": {
 			bookWormsFile: "testdata/no_file_here.json",
