@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 )
 
@@ -47,4 +48,65 @@ func loadBookWorms(filePath string) ([]BookWorm, error) {
 	}
 
 	return bookWorms, nil
+}
+
+func findBookWormByName(bookWorms []BookWorm, name string) *BookWorm {
+	for _, bookWorm := range bookWorms {
+		if bookWorm.Name == name {
+			return &bookWorm
+		}
+	}
+	return nil
+}
+
+/*
+This function returns a map of books and their counts.
+*/
+func bookCount(bookWorms []BookWorm) map[Book]uint {
+	/*
+		The key of the map must be hashable, so we use Book as the key type.
+		So e.g slices are not allowed as keys because they are not hashable.
+	*/
+	count := make(map[Book]uint)
+
+	for _, bookWorm := range bookWorms {
+		for _, book := range bookWorm.Books {
+			/*
+				This will increase the count of the book (related to the book key) in the map.
+			*/
+			count[book]++
+		}
+	}
+
+	return count
+}
+
+func printBookWormsMap(bookWorms map[Book]uint) {
+	for book, count := range bookWorms {
+		log.Printf("%s: %d\n", book.Title, count)
+	}
+}
+
+func printBooksSlice(books []Book) {
+	for _, book := range books {
+		log.Printf("%s: %v\n", book.Title, book.Author)
+	}
+}
+
+func findCommonBooks(bookWorms []BookWorm) []Book {
+	books := bookCount(bookWorms)
+	var commonBooks []Book
+
+	for book, count := range books {
+		if count > 1 {
+			/*
+				the append method always returns a new slice, so we don't need to worry about mutating the original slice.
+			*/
+			commonBooks = append(commonBooks, book)
+		}
+	}
+
+	printBooksSlice(commonBooks)
+
+	return commonBooks
 }
