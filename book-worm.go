@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"log"
 	"os"
+	"sort"
 )
 
 type Book struct {
@@ -16,6 +18,12 @@ type BookWorm struct {
 	Books []Book `json:"books"`
 }
 
+type byAuthor []Book
+
+func (a byAuthor) Len() int           { return len(a) }
+func (a byAuthor) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a byAuthor) Less(i, j int) bool { return a[i].Author < a[j].Author }
+
 func loadBookWorms(filePath string) ([]BookWorm, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -25,7 +33,7 @@ func loadBookWorms(filePath string) ([]BookWorm, error) {
 
 	/*
 		The defer statement defers the execution of a function until the surrounding function returns.
-		This defer will execute after the function returns and closes the file.
+		This deferring will execute after the function returns and closes the file.
 	*/
 	defer func(f *os.File) {
 		err := f.Close()
@@ -35,13 +43,19 @@ func loadBookWorms(filePath string) ([]BookWorm, error) {
 	}(f)
 
 	/*
+		We use this buffer reader to read the file in chunks of 1MB.
+		It makes it much faster to read large files.
+	*/
+	buffReader := bufio.NewReaderSize(f, 1024*1024)
+
+	/*
 		Here we define a slice of BookWorm structs.
 	*/
 	var bookWorms []BookWorm
 	/*
 		Here we create a decoder and decode the JSON data into the slice of BookWorm structs.
 	*/
-	err = json.NewDecoder(f).Decode(&bookWorms)
+	err = json.NewDecoder(buffReader).Decode(&bookWorms)
 	if err != nil {
 		PrintError(err)
 		return nil, err
@@ -81,6 +95,14 @@ func bookCount(bookWorms []BookWorm) map[Book]uint {
 	return count
 }
 
+func getBooks(bookWorm []BookWorm) []Book {
+	var books []Book
+	for _, bookW := range bookWorm {
+		books = append(books, bookW.Books...)
+	}
+	return books
+}
+
 func printBookWormsMap(bookWorms map[Book]uint) {
 	for book, count := range bookWorms {
 		log.Printf("%s: %d\n", book.Title, count)
@@ -109,4 +131,9 @@ func findCommonBooks(bookWorms []BookWorm) []Book {
 	printBooksSlice(commonBooks)
 
 	return commonBooks
+}
+
+func sortBooksByAuthor(books []Book) []Book {
+	sort.Sort(byAuthor(books))
+	return books
 }

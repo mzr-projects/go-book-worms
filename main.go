@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sort"
 )
 
 func main() {
@@ -19,4 +20,19 @@ func main() {
 
 	log.Println("######## Common Books ########")
 	findCommonBooks(worms)
+
+	log.Println("######## Sorted Books By Title ########")
+	var sortedBooks = getBooks(worms)
+	sort.Slice(sortedBooks, func(i, j int) bool {
+		if sortedBooks[i].Title < sortedBooks[j].Title {
+			return true
+		}
+		return sortedBooks[i].Title == sortedBooks[j].Title
+	})
+	printBooksSlice(sortedBooks)
+
+	log.Println("######## Sorted Books By Author ########")
+	var sortedByAuthor = sortBooksByAuthor(getBooks(worms))
+	printBooksSlice(sortedByAuthor)
+
 }
